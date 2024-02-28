@@ -1,8 +1,11 @@
 import {defs, tiny} from './examples/common.js';
+import { Shape_From_File } from './examples/obj-file-demo.js';
+import { Tentacle } from './Tentacle.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
 } = tiny;
+
 
 export class Main extends Scene {
     constructor() {
@@ -13,7 +16,10 @@ export class Main extends Scene {
         this.shapes = {
             beach: new defs.Cube(40,40),
             ocean: new defs.Cube(),
+            jellyfish_head: new Shape_From_File("./assets/head.obj"),
+            
         };
+        this.jellyfish_tentacle =  new Tentacle(),
 
         // *** Materials
         this.materials = {
@@ -21,6 +27,8 @@ export class Main extends Scene {
                 {ambient: 1, diffusivity: 0, color: hex_color("#e8c774")}),
             ocean: new Material(new defs.Phong_Shader(),
                 {ambient: 1, diffusivity: 1, color: hex_color("#69adcf")}),
+            jellyfish_head: new Material(new defs.Phong_Shader(),
+                {ambient: 1, diffusivity: 1, color: hex_color("#e3a6e0")}),
         }
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
@@ -28,6 +36,23 @@ export class Main extends Scene {
 
     make_control_panel() {
         
+    }
+    draw_jellyfish(context, program_state, model_transform, t) {
+        // Jellyfish vertical movement
+        var vertical_movement = 1.3 * Math.sin(2 * Math.PI / 2 * t);
+        model_transform = model_transform.times(Mat4.translation(0, vertical_movement, 0));
+
+        // Jellyfish bell transformation
+        var head_height = 1 + 0.5 * Math.sin(2 * Math.PI / 2 * t);
+        var head_radius = 0.95 - 0.25 * Math.sin(2 * Math.PI / 2 * t);
+        let jellyfish_head_transform = model_transform.times(Mat4.scale(1.2, 0.8, 1.2))
+                                                      .times(Mat4.scale(head_radius, head_height, head_radius));
+
+        // Draw jellyfish head
+        this.shapes.jellyfish_head.draw(context, program_state, jellyfish_head_transform, this.materials.jellyfish_head);
+
+        // Draw jellyfish tentacles
+        this.jellyfish_tentacle.render(context, program_state, model_transform);
     }
 
     display(context, program_state) {
@@ -61,7 +86,9 @@ export class Main extends Scene {
         ocean_transform = ocean_transform.times(Mat4.scale(40, 40, 40));
         this.shapes.ocean.draw(context, program_state, ocean_transform, this.materials.ocean);
 
-        
+        // Draw the jellyfish
+        let jellyfish_transform = model_transform.times(Mat4.translation(-6, 3, 0));
+        this.draw_jellyfish(context, program_state, jellyfish_transform, t);
 
 
         
@@ -79,6 +106,7 @@ export class Main extends Scene {
           }
     }
 }
+
 
 class Gouraud_Shader extends Shader {
     // This is a Shader using Phong_Shader as template
