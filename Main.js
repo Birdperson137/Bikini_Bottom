@@ -17,8 +17,8 @@ export class Main extends Scene {
             beach: new defs.Cube(40,40),
             ocean: new defs.Cube(),
             jellyfish_head: new Shape_From_File("./assets/head.obj"),
-            pineapple_house: new Shape_From_File("./assets/pineapple.obj"),
-            
+            pineapple_house: new Shape_From_File("./assets/pineapple.obj"), 
+            jellyfish_net: new Shape_From_File("./assets/jellyfish_net.obj"),
         };
         this.jellyfish_tentacle =  new Tentacle(),
 
@@ -30,8 +30,6 @@ export class Main extends Scene {
                 {ambient: 1, diffusivity: 1, color: hex_color("#69adcf")}),
             jellyfish_head: new Material(new defs.Textured_Phong(),
                 {ambient: 1, diffusivity: 1,  texture: new Texture("assets/jellyfish_surface.png")}),
-            pineapple_house: new Material(new defs.Phong_Shader(),
-                {ambient: 1, diffusivity: 1}),
         }
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
@@ -90,9 +88,8 @@ export class Main extends Scene {
         this.shapes.ocean.draw(context, program_state, ocean_transform, this.materials.ocean);
 
         // Draw the jellyfish
-        let jellyfish_transform = model_transform.times(Mat4.translation(-6, 3, 0));
+        let jellyfish_transform = model_transform.times(Mat4.translation(6, 3, 0));
         this.draw_jellyfish(context, program_state, jellyfish_transform, t);
-
 
         
         // call this .attached() to assign to the camera matrix. 
