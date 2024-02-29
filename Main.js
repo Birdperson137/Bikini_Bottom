@@ -3,7 +3,7 @@ import { Shape_From_File } from './examples/obj-file-demo.js';
 import { Tentacle } from './Tentacle.js';
 
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture
 } = tiny;
 
 
@@ -17,6 +17,7 @@ export class Main extends Scene {
             beach: new defs.Cube(40,40),
             ocean: new defs.Cube(),
             jellyfish_head: new Shape_From_File("./assets/head.obj"),
+            pineapple_house: new Shape_From_File("./assets/pineapple.obj"),
             
         };
         this.jellyfish_tentacle =  new Tentacle(),
@@ -27,8 +28,10 @@ export class Main extends Scene {
                 {ambient: 1, diffusivity: 0, color: hex_color("#e8c774")}),
             ocean: new Material(new defs.Phong_Shader(),
                 {ambient: 1, diffusivity: 1, color: hex_color("#69adcf")}),
-            jellyfish_head: new Material(new defs.Phong_Shader(),
-                {ambient: 1, diffusivity: 1, color: hex_color("#e3a6e0")}),
+            jellyfish_head: new Material(new defs.Textured_Phong(),
+                {ambient: 1, diffusivity: 1,  texture: new Texture("assets/jellyfish_surface.png")}),
+            pineapple_house: new Material(new defs.Phong_Shader(),
+                {ambient: 1, diffusivity: 1}),
         }
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
@@ -45,7 +48,7 @@ export class Main extends Scene {
         // Jellyfish bell transformation
         var head_height = 1 + 0.5 * Math.sin(2 * Math.PI / 2 * t);
         var head_radius = 0.95 - 0.25 * Math.sin(2 * Math.PI / 2 * t);
-        let jellyfish_head_transform = model_transform.times(Mat4.scale(1.2, 0.8, 1.2))
+        let jellyfish_head_transform = model_transform.times(Mat4.scale(1.2, 0.9, 1.2))
                                                       .times(Mat4.scale(head_radius, head_height, head_radius));
 
         // Draw jellyfish head
@@ -61,7 +64,7 @@ export class Main extends Scene {
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
             // Define the global camera and projection matrices, which are stored in program_state.
-            program_state.set_camera(this.initial_camera_location);
+            program_state.set_camera(this.initial_camera_location.times(Mat4.translation(0, 0.5, 0)));
         }
 
         program_state.projection_transform = Mat4.perspective(
@@ -79,7 +82,7 @@ export class Main extends Scene {
         //draw the beach
         let beach_transform = model_transform;
         beach_transform = beach_transform.times(Mat4.translation(0, -10, 0))
-        this.shapes.beach.draw(context, program_state, beach_transform.times(Mat4.scale(40, 1, 8)), this.materials.beach);
+        this.shapes.beach.draw(context, program_state, beach_transform.times(Mat4.scale(40, 1, 10)), this.materials.beach);
 
         //draw the ocean
         let ocean_transform = model_transform;

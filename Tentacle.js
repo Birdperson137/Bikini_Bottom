@@ -36,7 +36,7 @@ export class Tentacle extends Base_Scene {
     set_colors() {
         // TODO:  Create a class member variable to store your cube's colors.
         for(let i = 0; i < 18; i++){
-            this.colors[i] = hex_color("#ad79b5");
+            this.colors[i] = hex_color("#bf84b8");
         }
     }
 
