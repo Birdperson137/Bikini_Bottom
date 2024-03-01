@@ -39,8 +39,11 @@ export class Main extends Scene {
         this.materials = {
             beach: new Material(new defs.Phong_Shader(),
                 {ambient: 1, diffusivity: 0, color: hex_color("#e8c774")}),
-            ocean: new Material(new defs.Phong_Shader(),
-                {ambient: 1, diffusivity: 1, color: hex_color("#69adcf")}),
+            ocean: new Material(bump, {
+                ambient: 1, diffusivity: .5, 
+                color: color(0, 0, 0, 1),
+                texture: new Texture("assets/ocean.png"), 
+            }),
             sponge_body: new Material(bump, {
                 ambient: 1, diffusivity: .5, 
                 color: color(0, 0, 0, 1),
@@ -262,7 +265,7 @@ export class Main extends Scene {
         let model_transform = Mat4.identity();
 
         var light_color = color(70, 70, 70, 1);
-        const light_position = vec4(0, 0, -20, 1);
+        const light_position = vec4(0, 0, -30, 1);
         // The parameters of the Light are: position, color, size
         program_state.lights = [new Light(light_position, light_color, 1)];
 
@@ -270,7 +273,7 @@ export class Main extends Scene {
         let beach_transform = model_transform;
 
         beach_transform = beach_transform.times(Mat4.translation(0, -7, 0))
-                                            .times(Mat4.scale(40, 1, 10));
+                                            .times(Mat4.scale(40, 1, 40));
         this.shapes.beach.draw(context, program_state, beach_transform, this.materials.beach);
 
         //draw the ocean
@@ -287,6 +290,7 @@ export class Main extends Scene {
         let jellyfish_transform = model_transform.times(Mat4.translation(6, 3, 0));
         this.draw_jellyfish(context, program_state, jellyfish_transform, t);
         
+
         
         // call this .attached() to assign to the camera matrix. 
         //Set the camera position as desired 
