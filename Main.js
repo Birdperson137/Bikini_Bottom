@@ -1,7 +1,10 @@
 import {defs, tiny} from './examples/common.js';
+import {Shape_From_File} from './examples/obj-file-demo.js'
+import { Tentacle } from './Tentacle.js';
+
 
 const {
-    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
+    Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene, Texture,
 } = tiny;
 
 export class Main extends Scene {
@@ -13,7 +16,23 @@ export class Main extends Scene {
         this.shapes = {
             beach: new defs.Cube(40,40),
             ocean: new defs.Cube(),
+            sponge_body: new defs.Cube(),
+            sponge_eyes: new defs.Subdivision_Sphere(4),
+            eye_ball: new defs.Subdivision_Sphere(4),
+            mouth: new defs.Cube(),
+            teeth: new defs.Cube(),
+            arm: new defs.Cube(),
+            shirt: new defs.Cube(),
+            pants: new defs.Cube(),
+            shoe: new defs.Cube(),
+            hand: new defs.Subdivision_Sphere(4),
+            net: new Shape_From_File("./assets/Jellyfish_net.obj"),
+            jellyfish_head: new Shape_From_File("./assets/head.obj"),
+            pineapple_house: new Shape_From_File("./assets/pineapple.obj"), 
         };
+        this.jellyfish_tentacle =  new Tentacle();
+
+        const bump = new defs.Fake_Bump_Map(1);
 
         // *** Materials
         this.materials = {
@@ -21,14 +40,192 @@ export class Main extends Scene {
                 {ambient: 1, diffusivity: 0, color: hex_color("#e8c774")}),
             ocean: new Material(new defs.Phong_Shader(),
                 {ambient: 1, diffusivity: 1, color: hex_color("#69adcf")}),
+            sponge_body: new Material(bump, {
+                ambient: 1, diffusivity: .5, 
+                color: color(0, 0, 0, 1),
+                texture: new Texture("assets/bob_body.jpg"), 
+            }),
+            sponge_eyes: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5, 
+                color: color(1, 1, 1, 1),
+            }), 
+            eye_ball: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5, 
+                color: hex_color('#7eb5e8'),
+            }),
+            mouth: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5,
+                color: color(0, 0, 0, 1),
+            }),
+            teeth: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5,
+                color: color(1, 1, 1, 1),
+            }),
+            arm: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5, 
+                color: hex_color('#f0e33f'),
+            }),
+            shirt: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5, 
+                color: color(1, 1, 1, 1),
+            }),
+            pants: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5,
+                color: hex_color('#b47a3d'),
+            }),
+            shoe: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5, 
+                color: color(0, 0, 0, 1),
+            }),
+            hand: new Material(new defs.Phong_Shader(), {
+                ambient: 1, diffusivity: .5,
+                color: hex_color('#f0e33f'),
+            }),
+            net: new Material(new defs.Fake_Bump_Map(1), {
+                ambient: 1, diffusivity: .5,
+                texture: new Texture("assets/T_JellyfishHunter_D1.png"),
+            }),
+            jellyfish_head: new Material(new defs.Textured_Phong(),
+                {ambient: 1, diffusivity: 1,  texture: new Texture("assets/jellyfish_surface.png")}),
         }
 
-        this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.initial_camera_location = Mat4.look_at(vec3(0, 0, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+
+        //this.contruct_spongebob_hierarchy();
     }
 
     make_control_panel() {
         
     }
+
+    draw_spongebob(context, program_state, model_transform, global_transform, t){
+        //implement the legs' action
+        const swingAmplitude = Math.PI / 6; // Adjust this for larger or smaller swings
+        const shoeAM = Math.PI / 30;
+        const armAM = Math.PI / 20;
+        const swingFrequency = 5; // Adjust this for faster or slower swings
+        let swingAngle = Math.sin(t * swingFrequency) * swingAmplitude;
+        let shoe_angle = Math.sin(t * swingFrequency) * shoeAM;
+        let arm_angle = Math.sin(t * swingFrequency) * armAM;
+
+        
+        let sponge_body_transform = model_transform;
+        sponge_body_transform = sponge_body_transform.times(global_transform)
+            .times(Mat4.scale(2, 2.1, .8));
+
+        let sponge_eyes_transform = model_transform;
+        sponge_eyes_transform = sponge_eyes_transform
+            .times(global_transform)
+            .times(Mat4.scale(.6, .6, .6))
+            .times(Mat4.translation(-.9, .6, 1.2));
+        let sponge_eyes2_transform = sponge_eyes_transform
+            .times(Mat4.translation(1.8, 0, 0));
+
+        let eyeball1_transform = sponge_eyes_transform.times(Mat4.translation(0, 0, .5))
+            .times(Mat4.scale(.6, .6, .6));
+        let eyeball2_transform = sponge_eyes_transform.times(Mat4.translation(1.8, 0, .5))
+            .times(Mat4.scale(.6, .6, .6));
+
+        let mouth_transform = model_transform;
+        mouth_transform = mouth_transform
+            .times(global_transform).times(Mat4.translation(0, -.5, .9))
+            .times(Mat4.scale(.7, .03, 0));
+
+        let teeth_transform = model_transform;
+        teeth_transform = teeth_transform.times(global_transform).times(Mat4.translation(-.25, -.8, .8))
+            .times(Mat4.scale(.2, .3, .1));
+        let teeth2_transform = model_transform;
+        teeth2_transform = teeth2_transform.times(global_transform).times(Mat4.translation(.25, -.8, .8))
+            .times(Mat4.scale(.2, .3, .1));
+
+        let arm_transform = model_transform;
+        arm_transform = arm_transform.times(global_transform).times(Mat4.translation(-3, -.6, 0))
+            .times(Mat4.translation(2, 0, 0))
+            .times(Mat4.rotation(arm_angle, 0, 0, 1))
+            .times(Mat4.translation(-2, 0, 0))
+            .times(Mat4.scale(1, .1, .1));
+        let arm2_transform = model_transform.times(global_transform).times(Mat4.translation(3, -.6, 0))
+            .times(Mat4.scale(1, .1, .1));
+
+        let shirt_transform = model_transform;
+        shirt_transform = shirt_transform.times(global_transform).times(Mat4.translation(0, -2.3, 0))
+            .times(Mat4.scale(2, .25, .8));
+
+        let pants_transform = model_transform;
+        pants_transform = pants_transform.times(global_transform).times(Mat4.translation(0, -2.75, 0))
+            .times(Mat4.scale(2, .25, .8));
+
+        let leg_transform = model_transform.times(global_transform).times(Mat4.translation(-.5, -3.5, 0))
+            .times(Mat4.rotation((Math.PI/2), 0, 0, 1))
+            .times(Mat4.rotation(swingAngle, 0, 1, 0))
+            .times(Mat4.scale(1, .1, .1));
+        let leg2_transform = model_transform.times(global_transform).times(Mat4.translation(.5, -3.5, 0))
+            .times(Mat4.rotation((Math.PI/2), 0, 0, 1))
+            .times(Mat4.rotation(-swingAngle, 0, 1, 0))
+            .times(Mat4.scale(1, .1, .1));
+
+        let shoe_transform = model_transform.times(global_transform).times(Mat4.translation(-.5, -4.3, .1))
+            .times(Mat4.translation(0, 3, 0))
+            .times(Mat4.rotation(-shoe_angle, 1, 0, 0))
+            .times(Mat4.translation(0, -3, 0))
+            .times(Mat4.scale(.3, .2, .5));
+        let shoe2_transform = model_transform.times(global_transform).times(Mat4.translation(.5, -4.3, .1))
+            .times(Mat4.translation(0, 3, 0))
+            .times(Mat4.rotation(shoe_angle, 1, 0, 0))
+            .times(Mat4.translation(0, -3, 0))
+            .times(Mat4.scale(.3, .2, .5));
+
+        let hand_transform = model_transform.times(global_transform).times(Mat4.translation(-4, -.6, 0))
+            .times(Mat4.translation(2.8, 0, 0))
+            .times(Mat4.rotation(arm_angle, 0, 0, 1))
+            .times(Mat4.translation(-2.8, 0, 0))
+            .times(Mat4.scale(.3, .3, .3));
+        let hand2_transform = model_transform.times(global_transform).times(Mat4.translation(4, -.6, 0))
+            .times(Mat4.scale(.3, .3, .3));
+
+        let net_transform = model_transform.times(global_transform)
+            .times(Mat4.scale(1, 1, 1))
+            .times(Mat4.translation(4, 4.5, -1));
+        //drawing:
+        this.shapes.sponge_body.draw(context, program_state, sponge_body_transform, this.materials.sponge_body);
+        this.shapes.sponge_eyes.draw(context, program_state, sponge_eyes_transform, this.materials.sponge_eyes);
+        this.shapes.sponge_eyes.draw(context, program_state, sponge_eyes2_transform, this.materials.sponge_eyes);
+        this.shapes.eye_ball.draw(context, program_state, eyeball1_transform, this.materials.eye_ball);
+        this.shapes.eye_ball.draw(context, program_state, eyeball2_transform, this.materials.eye_ball);
+        this.shapes.mouth.draw(context, program_state, mouth_transform, this.materials.mouth);
+        this.shapes.teeth.draw(context, program_state, teeth_transform, this.materials.teeth);
+        this.shapes.teeth.draw(context, program_state, teeth2_transform, this.materials.teeth);
+        this.shapes.arm.draw(context, program_state, arm_transform, this.materials.arm);
+        this.shapes.arm.draw(context, program_state, arm2_transform, this.materials.arm);
+        this.shapes.shirt.draw(context, program_state, shirt_transform, this.materials.shirt);
+        this.shapes.pants.draw(context, program_state, pants_transform, this.materials.pants);
+        this.shapes.arm.draw(context, program_state, leg_transform, this.materials.arm);
+        this.shapes.arm.draw(context, program_state, leg2_transform, this.materials.arm);
+        this.shapes.shoe.draw(context, program_state, shoe_transform, this.materials.shoe);
+        this.shapes.shoe.draw(context, program_state, shoe2_transform, this.materials.shoe);
+        this.shapes.hand.draw(context, program_state, hand_transform, this.materials.hand);
+        this.shapes.hand.draw(context, program_state, hand2_transform, this.materials.hand);
+        this.shapes.net.draw(context, program_state, net_transform, this.materials.net);
+    }
+
+    draw_jellyfish(context, program_state, model_transform, t) {
+        // Jellyfish vertical movement
+        var vertical_movement = 1.3 * Math.sin(2 * Math.PI / 2 * t);
+        model_transform = model_transform.times(Mat4.translation(0, vertical_movement, 0));
+
+        // Jellyfish bell transformation
+        var head_height = 1 + 0.5 * Math.sin(2 * Math.PI / 2 * t);
+        var head_radius = 0.95 - 0.25 * Math.sin(2 * Math.PI / 2 * t);
+        let jellyfish_head_transform = model_transform.times(Mat4.scale(1.2, 0.9, 1.2))
+                                                      .times(Mat4.scale(head_radius, head_height, head_radius));
+
+        // Draw jellyfish head
+        this.shapes.jellyfish_head.draw(context, program_state, jellyfish_head_transform, this.materials.jellyfish_head);
+
+        // Draw jellyfish tentacles
+        this.jellyfish_tentacle.render(context, program_state, model_transform);
+    }
+
 
     display(context, program_state) {
         // display():  Called once per frame of animation.
@@ -53,7 +250,7 @@ export class Main extends Scene {
 
         //draw the beach
         let beach_transform = model_transform;
-        beach_transform = beach_transform.times(Mat4.translation(0, -10, 0))
+        beach_transform = beach_transform.times(Mat4.translation(0, -7, 0))
         this.shapes.beach.draw(context, program_state, beach_transform.times(Mat4.scale(40, 1, 8)), this.materials.beach);
 
         //draw the ocean
@@ -61,9 +258,15 @@ export class Main extends Scene {
         ocean_transform = ocean_transform.times(Mat4.scale(40, 40, 40));
         this.shapes.ocean.draw(context, program_state, ocean_transform, this.materials.ocean);
 
+        //draw bob
+        let global = model_transform.times(Mat4.rotation(Math.PI / Math.sqrt(30), 0, 1, 0))
+            .times(Mat4.translation(-3, -1, 0));
+        this.draw_spongebob(context, program_state, model_transform, global, t);
+
+        // Draw the jellyfish
+        let jellyfish_transform = model_transform.times(Mat4.translation(6, 3, 0));
+        this.draw_jellyfish(context, program_state, jellyfish_transform, t);
         
-
-
         
         // call this .attached() to assign to the camera matrix. 
         //Set the camera position as desired 
@@ -76,7 +279,7 @@ export class Main extends Scene {
                 desired = desired.map((x, i) => Vector.from( program_state.camera_inverse[i]).mix(x, .1));
                 program_state.camera_inverse = desired;
             }          
-          }
+        }
     }
 }
 
