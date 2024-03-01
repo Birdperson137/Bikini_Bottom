@@ -80,11 +80,12 @@ export class Main extends Scene {
         //draw the beach
         let beach_transform = model_transform;
         beach_transform = beach_transform.times(Mat4.translation(0, -10, 0))
-        this.shapes.beach.draw(context, program_state, beach_transform.times(Mat4.scale(40, 1, 10)), this.materials.beach);
+                                            .times(Mat4.scale(40, 1, 10));
+        this.shapes.beach.draw(context, program_state, beach_transform, this.materials.beach);
 
         //draw the ocean
         let ocean_transform = model_transform;
-        ocean_transform = ocean_transform.times(Mat4.scale(40, 40, 40));
+        ocean_transform = ocean_transform.times(Mat4.scale(40, 40, 25));
         this.shapes.ocean.draw(context, program_state, ocean_transform, this.materials.ocean);
 
         // Draw the jellyfish
@@ -304,4 +305,3 @@ class Ring_Shader extends Shader {
         }`;
     }
 }
-
