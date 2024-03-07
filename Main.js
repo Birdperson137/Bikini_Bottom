@@ -254,7 +254,7 @@ export class Main extends Scene {
         if (!context.scratchpad.controls) {
             this.children.push(context.scratchpad.controls = new defs.Movement_Controls());
             // Define the global camera and projection matrices, which are stored in program_state.
-            program_state.set_camera(this.initial_camera_location.times(Mat4.translation(0, 0.5, 0)));
+            program_state.set_camera(this.initial_camera_location.times(Mat4.translation(0, 0.3, 0)));
         }
 
         program_state.projection_transform = Mat4.perspective(
@@ -273,7 +273,7 @@ export class Main extends Scene {
         let beach_transform = model_transform;
 
         beach_transform = beach_transform.times(Mat4.translation(0, -7, 0))
-                                            .times(Mat4.scale(40, 1, 40));
+                                            .times(Mat4.scale(40, 1, 20));
         this.shapes.beach.draw(context, program_state, beach_transform, this.materials.beach);
 
         //draw the ocean
@@ -283,11 +283,27 @@ export class Main extends Scene {
 
         //draw bob
         let global = model_transform.times(Mat4.rotation(Math.PI / Math.sqrt(30), 0, 1, 0))
-            .times(Mat4.translation(-3, -1, 0));
+            .times(Mat4.translation(-3, -1, -3));
         this.draw_spongebob(context, program_state, model_transform, global, t);
 
         // Draw the jellyfish
-        let jellyfish_transform = model_transform.times(Mat4.translation(6, 3, 0));
+        //transform the jellyfish from (-6, 0, 0) to (6, 3, 0) in 3 seconds
+
+        //let jellyfish_transform = model_transform.times(Mat4.translation(6, 3, 0));
+        let cappedTime = Math.min(t, 5.8);
+        let normalizedTime = cappedTime%6/6 ;
+
+        // Interpolate positions
+        // Start position: (-6, 0, 0)
+        // End position: (6, 3, 0)
+        // Linear interpolation: start + (end - start) * normalizedTime
+        let x = -13 + (8 - (-13)) * normalizedTime; // -6 to 6
+        let y = -3 + (3 + 3) * normalizedTime;     // 0 to 3
+        let z = 2.5;                                // Z remains constant
+
+        // Apply the calculated translation
+        let jellyfish_transform = model_transform.times(Mat4.translation(x, y, z))
+                                                 .times(Mat4.rotation(-Math.PI/4,0,0,1));    
         this.draw_jellyfish(context, program_state, jellyfish_transform, t);
         
 

@@ -26,7 +26,7 @@ class Base_Scene extends Scene {
                 {ambient: 1, diffusivity: .6, color: hex_color("#ad79b5")}),
         };
         //store and set colors
-        this.colors = [18];
+        this.colors = [20];
         this.set_colors();
     }
 
@@ -35,7 +35,7 @@ class Base_Scene extends Scene {
 export class Tentacle extends Base_Scene {
     set_colors() {
         // TODO:  Create a class member variable to store your cube's colors.
-        for(let i = 0; i < 18; i++){
+        for(let i = 0; i < 20; i++){
             this.colors[i] = hex_color("#bf84b8");
         }
     }
@@ -58,7 +58,7 @@ export class Tentacle extends Base_Scene {
 
         // first box does not swing
         if(num_box == 0){
-            model_transform = model_transform.times(Mat4.scale(0.08,0.08,0.08));
+            model_transform = model_transform.times(Mat4.scale(0.07,0.07,0.07));
                                             
         }
         // the second to eighth box swing
@@ -94,7 +94,7 @@ export class Tentacle extends Base_Scene {
                                                     .times(Mat4.rotation(rotation_angle, 0, 1, 0));
     
             // Draw each box in the current tentacle
-            for (let i = 0; i < 18; i++) {
+            for (let i = 0; i < 20; i++) {
                 tentacle_transform = this.draw_box(context, program_state, tentacle_transform, i);
             }
         }
