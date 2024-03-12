@@ -38,8 +38,13 @@ export class Main extends Scene {
 
         // *** Materials
         this.materials = {
-            beach: new Material(new defs.Phong_Shader(),
-                {ambient: 1, diffusivity: 0, color: hex_color("#e8c774")}),
+            beach: new Material(new defs.Textured_Phong(), {
+                color: color(0, 0, 0, 1), 
+                ambient: 1,                
+                diffusivity: 0.3,            
+                specularity: 0.5,    
+                texture: new Texture("assets/sand.png"),
+            }),
             ocean: new Material(bump, {
                 ambient: 1, diffusivity: .5, 
                 color: color(0, 0, 0, 1),

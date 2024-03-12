@@ -39,34 +39,6 @@ class Base_Scene extends Scene {
 }
 
 export class Background extends Base_Scene {
-    /*
-    position(program_state, initial_x) {
-        let t = program_state.animation_time / 1000; // Convert time to seconds
-        let x_position = initial_x;
-        // Check if the current time is within the first 4 seconds
-        if (t <= 4) {
-            // Stay at the initial position
-            x_position = initial_x;
-        } else {
-            // Adjust time to account for the initial 4 seconds of delay
-            let adjusted_time = t - 4;
-            
-            // Calculate the distance moved considering the speed is such that it moves 1 unit per second
-            // The starfish stays still for the first 4 seconds, then starts moving
-            if (initial_x - adjusted_time > -28) {
-                x_position = initial_x - adjusted_time;
-            } else {
-                // Reset to 26 and move towards -26 after reaching -26
-                let extra_time = (adjusted_time - (initial_x + 28)) % 56;
-                x_position = 28 - extra_time;
-                
-                // Ensure x_position does not go beyond -26
-                x_position = Math.max(x_position, -28);
-            }
-        }
-        
-        return x_position;
-    }*/
     position(program_state, initial_x, range) {
         let t = program_state.animation_time / 1000; // Convert time to seconds
         let x_position = initial_x;
@@ -74,16 +46,16 @@ export class Background extends Base_Scene {
         let start_point = initial_x;
         let end_point = -range;
         
-        // Check if the current time is within the first 4 seconds
-        if (t <= 4) {
+        // Check if the current time is within the first 5 seconds
+        if (t <= 4.5) {
             // Stay at the initial position
             x_position = initial_x;
         } else {
-            // Adjust time to account for the initial 4 seconds of delay
-            let adjusted_time = t - 4;
+            // Adjust time to account for the initial 5 seconds of delay
+            let adjusted_time = (t - 4.5)*4;
             
             // Calculate the distance moved considering the speed is such that it moves 1 unit per second
-            // The object stays still for the first 4 seconds, then starts moving
+            // The object stays still for the first 5 seconds, then starts moving
             if (start_point - adjusted_time > end_point) {
                 x_position = start_point - adjusted_time;
             } else {
