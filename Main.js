@@ -96,10 +96,17 @@ export class Main extends Scene {
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 0, 20), vec3(0, 0, 0), vec3(0, 1, 0));
 
-        //this.contruct_spongebob_hierarchy();
+        this.speed_up = 0;
+        this.set_speedUp = false;
+        this.speed_start_time = 0;
+        this.setup = false;
+        this.speed_distance = 0;
     }
 
     make_control_panel() {
+        this.key_triggered_button("Speed Up", ["u"], () => {
+            this.set_speedUp = true;
+        });
         
     }
     draw_jellyfish(context, program_state, model_transform, t) {
@@ -121,14 +128,78 @@ export class Main extends Scene {
     }
 
     draw_spongebob(context, program_state, model_transform, global_transform, t){
+        const target_distance = 7;
+        const speeding_duration = 2.5;
+        const maintain_duration = 2;
+        const slowing_duration = 2.5;
+        
+        if(this.set_speedUp && t >= 4){
+            let time = t - this.speed_start_time;
+            if(time < speeding_duration){
+                let fraction = time / speeding_duration;
+                this.speed_distance = fraction * target_distance;
+            } else if(time < speeding_duration + maintain_duration){
+                this.speed_distance = target_distance;
+            } else if(time < speeding_duration + maintain_duration + slowing_duration){
+                let fraction = (time - speeding_duration - maintain_duration) / slowing_duration;
+                this.speed_distance = target_distance * (1 - fraction);
+            } else {
+                //reset
+                this.set_speedUp = false;
+                this.speed_distance = 0;
+                this.speed_start_time = 0;
+            }
+        }
+        // let speeding = false;
+        // let slowing = false;
+        // if(this.set_speedUp){
+        //     speeding = true;
+        // }
+        // let distance_fraction = Math.min()
+        // let speed = time;
+        // if(speeding && t >= 4){
+        //     if(this.speed_distance >= 0 && this.speed_distance < target_distance){
+        //         this.speed_distance += speed;
+        //         console.log("speeding, speeding_distance = " + this.speed_distance);
+        //     } else if(this.speed_distance >= target_distance){
+        //         console.log("started to slow");
+        //         speeding = false;
+        //         slowing = true;
+        //     }
+        // } else if(slowing){
+        //     if(this.speed_distance > speed){
+        //         this.speed_distance-=speed;
+        //         console.log("slowing... speed_distance = " + speed_distance);
+        //     } else {
+        //         slowing = false;
+        //     }
+        // }
+        
+        const initial_angle = 0;
+        const final_angle = Math.PI / Math.sqrt(10);
+        const rotation_period = 2;
+        let rotation_fraction = Math.min(t, rotation_period) / rotation_period;
+        let interpolated_angle = initial_angle + (final_angle - initial_angle) * rotation_fraction;
+
         //implement the legs' action
         const swingAmplitude = Math.PI / 6; // Adjust this for larger or smaller swings
         const shoeAM = Math.PI / 30;
         const armAM = Math.PI / 20;
-        const swingFrequency = 5; // Adjust this for faster or slower swings
-        let swingAngle = Math.sin(t * swingFrequency) * swingAmplitude;
-        let shoe_angle = Math.sin(t * swingFrequency) * shoeAM;
-        let arm_angle = Math.sin(t * swingFrequency) * armAM;
+        const swingFrequency = 8; // Adjust this for faster or slower swings
+
+        const startTime = 4;
+        const animation_time =  Math.max(t - startTime, 0);
+        let swingAngle = Math.sin(animation_time * swingFrequency) * swingAmplitude;
+        let shoe_angle = Math.sin(animation_time * swingFrequency) * shoeAM;
+        let arm_angle = Math.sin(animation_time * swingFrequency) * armAM;
+        
+
+        if(t < 4){
+            global_transform = model_transform.times(Mat4.translation(-7, -1, -3));
+        } else {
+            global_transform = model_transform.times(Mat4.translation(-7 + this.speed_distance, -1, -3))
+                .times(Mat4.rotation(interpolated_angle, 0, 1, 0));
+        }
 
         
         let sponge_body_transform = model_transform;
@@ -284,10 +355,13 @@ export class Main extends Scene {
 
         //draw background objects
         this.background.render(context, program_state, model_transform);
-
+        
         //draw bob
-        let global = model_transform.times(Mat4.rotation(Math.PI / Math.sqrt(30), 0, 1, 0))
-            .times(Mat4.translation(-3, -1, -3));
+        let global = model_transform;
+        if(this.set_speedUp && this.speed_start_time == 0){
+            this.speed_start_time = t;
+        }
+
         this.draw_spongebob(context, program_state, model_transform, global, t);
 
         // Draw the jellyfish
