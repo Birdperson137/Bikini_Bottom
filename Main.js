@@ -1,6 +1,7 @@
 import {defs, tiny} from './examples/common.js';
 import {Shape_From_File} from './examples/obj-file-demo.js'
 import { Tentacle } from './Tentacle.js';
+import { Background } from './background.js';
 
 
 const {
@@ -29,9 +30,9 @@ export class Main extends Scene {
             hand: new defs.Subdivision_Sphere(4),
             net: new Shape_From_File("./assets/Jellyfish_net.obj"),
             jellyfish_head: new Shape_From_File("./assets/head.obj"),
-            pineapple_house: new Shape_From_File("./assets/pineapple.obj"), 
         };
         this.jellyfish_tentacle =  new Tentacle();
+        this.background = new Background();
 
         const bump = new defs.Fake_Bump_Map(1);
 
@@ -280,6 +281,9 @@ export class Main extends Scene {
         let ocean_transform = model_transform;
         ocean_transform = ocean_transform.times(Mat4.scale(40, 40, 25));
         this.shapes.ocean.draw(context, program_state, ocean_transform, this.materials.ocean);
+
+        //draw background objects
+        this.background.render(context, program_state, model_transform);
 
         //draw bob
         let global = model_transform.times(Mat4.rotation(Math.PI / Math.sqrt(30), 0, 1, 0))
