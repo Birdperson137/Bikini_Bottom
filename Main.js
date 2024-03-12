@@ -42,7 +42,7 @@ export class Main extends Scene {
                 color: color(0, 0, 0, 1), 
                 ambient: 1,                
                 diffusivity: 0.3,            
-                specularity: 0.5,    
+                specularity: 0.3,    
                 texture: new Texture("assets/sand.png"),
             }),
             ocean: new Material(bump, {
@@ -219,9 +219,18 @@ export class Main extends Scene {
         let sponge_eyes2_transform = sponge_eyes_transform
             .times(Mat4.translation(1.8, 0, 0));
 
-        let eyeball1_transform = sponge_eyes_transform.times(Mat4.translation(0, 0, .5))
+        let vertical_shift = 0;
+        let horizontal_shift = 0;
+        if (t >= 2.5 && t < 4) {
+            vertical_shift = 0.1;
+            horizontal_shift = 0.3;
+        } else if (t >= 4) {
+            vertical_shift = 0;
+        }
+            
+        let eyeball1_transform = sponge_eyes_transform.times(Mat4.translation(0 + horizontal_shift, vertical_shift, .5))
             .times(Mat4.scale(.6, .6, .6));
-        let eyeball2_transform = sponge_eyes_transform.times(Mat4.translation(1.8, 0, .5))
+        let eyeball2_transform = sponge_eyes_transform.times(Mat4.translation(1.8 + horizontal_shift, vertical_shift, .5))
             .times(Mat4.scale(.6, .6, .6));
 
         let mouth_transform = model_transform;

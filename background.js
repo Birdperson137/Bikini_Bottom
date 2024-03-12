@@ -52,7 +52,7 @@ export class Background extends Base_Scene {
             x_position = initial_x;
         } else {
             // Adjust time to account for the initial 5 seconds of delay
-            let adjusted_time = (t - 4.5)*4;
+            let adjusted_time = (t - 4.5)*8;
             
             // Calculate the distance moved considering the speed is such that it moves 1 unit per second
             // The object stays still for the first 5 seconds, then starts moving
