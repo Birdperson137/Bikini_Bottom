@@ -3,7 +3,7 @@
 * Yiran Wu (705733282)
 * Yuqi Huang (105722154)
 
-##Setup
+## Setup
 To view the animation - clone the repository, run the included "host.bat" or "host.command" file, then open localhost in your browser (http://localhost:8000/).
 
 ## Design and Implementation
